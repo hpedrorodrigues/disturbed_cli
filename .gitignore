@@ -1,0 +1,9 @@
+# Folder
+
+.idea
+
+# File
+
+*.pyc
+*.iml
+config.yaml

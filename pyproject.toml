@@ -1,0 +1,33 @@
+[tool.poetry]
+name = "disturbed"
+version = "0.1.0"
+description = ""
+authors = ["Pedro Rodrigues <hpedrorodrigues@users.noreply.github.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+requests = "^2.32.3"
+slack-sdk = "^3.33.1"
+pyyaml = "^6.0.2"
+
+[tool.poetry.group.dev.dependencies]
+flake8 = "^7.0.0"
+flake8-black = "^0.3.6"
+flake8-isort = "^6.1.1"
+pyproject-flake8 = "^7.0.0"
+black = { version = "^24.8.0" }
+isort = "^5.13.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.flake8]
+max-line-length = 120
+
+[tool.isort]
+profile = "black"
+
+[tool.black]
+line-length = 120

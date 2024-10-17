@@ -1,0 +1,12 @@
+[tools]
+python = "3.12"
+
+[tasks.fmt]
+run = "poetry run isort . && poetry run black ."
+
+[tasks.lint]
+run = "poetry run pflake8"
+
+[tasks.app]
+run = "poetry run python main.py"
+depends = ["fmt"]
