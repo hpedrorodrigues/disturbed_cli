@@ -1,7 +1,7 @@
 import os
 import sys
 from dataclasses import dataclass
-from typing import Optional
+from typing import Any, Optional
 
 import yaml
 
@@ -47,8 +47,19 @@ class Config:
     schedules_mapping: list[ScheduleMapping]
 
 
+def get_env(var_name: str, default_value: Optional[Any] = None) -> Any:
+    value = os.getenv(var_name)
+    if value is None:
+        if default_value is None:
+            logger.error(f'Environment variable "{var_name}" is not set.')
+            sys.exit(1)
+        else:
+            return default_value
+    return value
+
+
 class Configuration(object):
-    def __init__(self, path: str = "config.yaml"):
+    def __init__(self, path: str = get_env("DISTURBED_CONFIG_FILE", "config.yaml")):
         self.path = path
         self.config = self._load()
 
@@ -70,11 +81,3 @@ class Configuration(object):
     @property
     def schedules_mapping(self) -> list[ScheduleMapping]:
         return self.config.schedules_mapping
-
-
-def get_env(var_name: str) -> str:
-    value = os.getenv(var_name)
-    if value is None:
-        logger.error(f'Environment variable "{var_name}" is not set.')
-        sys.exit(1)
-    return value

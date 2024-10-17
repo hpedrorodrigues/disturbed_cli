@@ -8,11 +8,11 @@ logger = logging.getLogger(__name__)
 
 
 def main():
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=get_env("DISTURBED_LOG_LEVEL", logging.INFO))
 
     config = Configuration()
-    opsgenie_api = OpsgenieApi(api_key=get_env("OPSGENIE_API_KEY"))
-    slack_api = SlackApi(token=get_env("SLACK_API_TOKEN"))
+    opsgenie_api = OpsgenieApi(api_key=get_env("DISTURBED_OPSGENIE_API_KEY"))
+    slack_api = SlackApi(token=get_env("DISTURBED_SLACK_API_TOKEN"))
 
     group_id_by_name = slack_api.find_user_group_ids(
         group_names=[mapping.user_group_name for mapping in config.schedules_mapping]
