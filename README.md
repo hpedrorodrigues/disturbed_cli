@@ -13,6 +13,7 @@ Simple CLI that update users in Slack user groups based on OpsGenie on-call sche
 - `DISTURBED_SLACK_API_TOKEN`: Bot Token used to fetch users, user groups and update use groups.
   - It needs `users:read`, `usergroups:read` and `usergroups:write` scopes.
   - You can read this [page](https://api.slack.com/tutorials/tracks/getting-a-token) to quickly get a Slack Bot Token.
+  - Remember to review your workspace permissions for User Groups. It must allow users to update user groups (for more details, [see](https://api.slack.com/methods/usergroups.users.update#markdown)).
 - `DISTURBED_CONFIG_FILE` [not required]: Path to the configuration file. Defaults to `config.yaml`.
 - `DISTURBED_LOG_LEVEL` [not required]: Logging level to use in the project.
   - It's based on [Python's logging levels](https://docs.python.org/3/library/logging.html#logging-levels).
