@@ -45,3 +45,17 @@ users_mapping:
     email: 'john.doe@gmail.com'
 ```
 </details>
+
+### Docker image
+
+There is a Docker image you can use to run this project.
+
+e.g.,
+
+```bash
+docker run \
+  -e DISTURBED_OPSGENIE_API_KEY='<api-key>' \
+  -e DISTURBED_SLACK_API_TOKEN='<bot-token>' \
+  -v ./config.yaml:/app/config.yaml \
+  ghcr.io/hpedrorodrigues/disturbed_cli:<version>
+```
