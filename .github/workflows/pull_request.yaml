@@ -17,7 +17,7 @@ jobs:
         with:
           poetry-version: '1.8.3'
       - run: poetry install
-      - run: poetry run lint
+      - run: poetry run pflake8
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 5
