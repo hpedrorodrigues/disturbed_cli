@@ -7,3 +7,4 @@
 *.pyc
 *.iml
 config.yaml
+run.sh

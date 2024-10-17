@@ -14,14 +14,13 @@ class UserMapping:
     Represents a mapping between a Slack user and an Opsgenie user.
 
     Attributes:
-        alias (str): The Slack user identifier, typically in the format '@username'.
-                     This is used to mention or identify the user in Slack.
+        handle (str): The Slack user identifier. This is used to mention or identify the user in Slack.
 
         email (str): The Opsgenie user's email address. This is used to identify
                      the user in Opsgenie and is typically the user's work email.
     """
 
-    alias: str
+    handle: str
     email: str
 
 
@@ -34,9 +33,8 @@ class ScheduleMapping:
         schedule_name (str): The name of the schedule in Opsgenie. This is used to query
                              Opsgenie for the current on-call user.
 
-        user_group_name (str): The name of the Slack user group to be updated, typically
-                                in the format '@group-name'. This group will be updated
-                                with the current on-call user.
+        user_group_name (str): The name of the Slack user group to be updated. This group will be updated
+                               with the current on-call user.
     """
 
     schedule_name: str
