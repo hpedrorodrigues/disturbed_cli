@@ -1,7 +1,7 @@
-name: PR Checks
+name: Release
 
 on:
-  pull_request:
+  push:
     branches: [main]
 
 jobs:
@@ -21,10 +21,16 @@ jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+      packages: write
     steps:
       - uses: actions/checkout@v4
       - uses: docker/setup-qemu-action@v3
       - uses: docker/setup-buildx-action@v3
       - uses: docker/build-push-action@v6
         with:
-          push: false
+          push: true
+          tags: ghcr.io/${{ github.repository }}:latest,ghcr.io/${{ github.repository }}:1.0.${{ github.run_number }}
