@@ -17,9 +17,11 @@ def main():
     group_id_by_name = slack_api.find_user_group_ids(
         group_names=[mapping.user_group_name for mapping in config.schedules_mapping]
     )
+    logger.debug(f"Found groups: [{group_id_by_name}].")
     user_id_by_name = slack_api.find_user_ids(
         user_names=[mapping.handle for mapping in config.users_mapping],
     )
+    logger.debug(f"Found users: [{user_id_by_name}].")
 
     for schedule_mapping in config.schedules_mapping:
         oncall_user_email = opsgenie_api.get_on_call_user_email(
@@ -38,6 +40,7 @@ def main():
                 f"User {oncall_user_email} is not mapped! Ignoring... [schedule_name: {schedule_mapping.schedule_name}, user_group_name: {schedule_mapping.user_group_name}]"
             )
             continue
+        logger.info(f'Updating user group "{schedule_mapping.user_group_name}" to user "{user_mapping.handle}".')
         slack_api.update_user_group(
             group_id=group_id_by_name[schedule_mapping.user_group_name],
             user_id=user_id_by_name[user_mapping.handle],
