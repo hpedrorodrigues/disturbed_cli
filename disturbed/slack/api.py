@@ -1,5 +1,4 @@
 import logging
-from functools import reduce
 from typing import Optional
 
 from slack_sdk import WebClient

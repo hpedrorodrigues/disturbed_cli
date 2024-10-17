@@ -23,27 +23,29 @@ def main():
     )
     logger.debug(f"Found users: [{user_id_by_name}].")
 
-    for schedule_mapping in config.schedules_mapping:
+    for schedule in config.schedules_mapping:
         oncall_user_email = opsgenie_api.get_on_call_user_email(
-            schedule_name=schedule_mapping.schedule_name,
+            schedule_name=schedule.schedule_name,
         )
         if not oncall_user_email:
             logger.warning(
-                f"Invalid on-call user email received! Ignoring... [schedule_name: {schedule_mapping.schedule_name}, user_group_name: {schedule_mapping.user_group_name}]"
+                "Invalid on-call user email received! Ignoring... "
+                + f"[schedule_name: {schedule.schedule_name}, user_group_name: {schedule.user_group_name}]"
             )
             continue
-        user_mapping = config.find_user_by_email(
+        user = config.find_user_by_email(
             email=oncall_user_email,
         )
-        if not user_mapping:
+        if not user:
             logger.warning(
-                f"User {oncall_user_email} is not mapped! Ignoring... [schedule_name: {schedule_mapping.schedule_name}, user_group_name: {schedule_mapping.user_group_name}]"
+                f"User {oncall_user_email} is not mapped! Ignoring... "
+                + f"[schedule_name: {schedule.schedule_name}, user_group_name: {schedule.user_group_name}]"
             )
             continue
-        logger.info(f'Updating user group "{schedule_mapping.user_group_name}" to user "{user_mapping.handle}".')
+        logger.info(f'Updating user group "{schedule.user_group_name}" to user "{user.handle}".')
         slack_api.update_user_group(
-            group_id=group_id_by_name[schedule_mapping.user_group_name],
-            user_id=user_id_by_name[user_mapping.handle],
+            group_id=group_id_by_name[schedule.user_group_name],
+            user_id=user_id_by_name[user.handle],
         )
     logger.info("All done!")
 
