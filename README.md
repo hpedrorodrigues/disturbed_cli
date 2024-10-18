@@ -11,7 +11,7 @@ Simple CLI that update users in Slack user groups based on OpsGenie on-call sche
   - It needs `Read` and `Configuration Access` access rights.
   - You can read this [page](https://support.atlassian.com/opsgenie/docs/api-key-management/) to learn how to create an API key.
 - `DISTURBED_SLACK_API_TOKEN`: Bot Token used to fetch users, user groups and update use groups.
-  - It needs `users:read`, `usergroups:read` and `usergroups:write` scopes.
+  - It needs `users:read`, `users:read.email`, `usergroups:read` and `usergroups:write` scopes.
   - You can read this [page](https://api.slack.com/tutorials/tracks/getting-a-token) to quickly get a Slack Bot Token.
   - Remember to review your workspace permissions for User Groups. It must allow users to update user groups (for more details, [see](https://api.slack.com/methods/usergroups.users.update#markdown)).
 - `DISTURBED_CONFIG_FILE` [not required]: Path to the configuration file. Defaults to `config.yaml`.
@@ -24,10 +24,6 @@ Simple CLI that update users in Slack user groups based on OpsGenie on-call sche
 schedules_mapping:
   - schedule_name: "Schedule name in OpsGenie to fetch who's on-call"
     user_group_name: "User group name in Slack to be updated"
-
-users_mapping:
-  - handle: "User handle in Slack (without @)"
-    email: "User email in OpsGenie"
 ```
 
 **Example**
@@ -39,10 +35,6 @@ users_mapping:
 schedules_mapping:
   - schedule_name: 'SRE'
     user_group_name: 'sre-oncall'
-
-users_mapping:
-  - handle: 'John Doe'
-    email: 'john.doe@gmail.com'
 ```
 </details>
 

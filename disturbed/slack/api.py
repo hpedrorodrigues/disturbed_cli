@@ -22,17 +22,12 @@ class SlackApi(object):
         except SlackApiError:
             logger.error(f"Failed to fetch user groups [groups: {group_names}].", exc_info=True)
 
-    def find_user_ids(self, user_names: list[str]) -> Optional[dict[str, str]]:
+    def find_user_id_by_email(self, email: str) -> Optional[str]:
         try:
-            # TODO: this approach doesn't work for big workspaces and need to be replaced
-            response = self.client.users_list()
-            return {
-                current["profile"]["display_name"]: current["id"]
-                for current in response["members"]
-                if current["profile"]["display_name"] in user_names
-            }
+            response = self.client.users_lookupByEmail(email=email)
+            return response["user"]["id"]
         except SlackApiError:
-            logger.error(f"Failed to fetch users [users: {user_names}].", exc_info=True)
+            logger.error(f"Failed to fetch user [email={email}].", exc_info=True)
 
     def update_user_group(self, group_id: str, user_id: str):
         try:

@@ -1,4 +1,5 @@
 import logging
+import sys
 
 from disturbed.configuration import Configuration, get_env
 from disturbed.opsgenie.api import OpsgenieApi
@@ -18,34 +19,28 @@ def main():
         group_names=[mapping.user_group_name for mapping in config.schedules_mapping]
     )
     logger.debug(f"Found groups: [{group_id_by_name}].")
-    user_id_by_name = slack_api.find_user_ids(
-        user_names=[mapping.handle for mapping in config.users_mapping],
-    )
-    logger.debug(f"Found users: [{user_id_by_name}].")
 
     for schedule in config.schedules_mapping:
         oncall_user_email = opsgenie_api.get_on_call_user_email(
             schedule_name=schedule.schedule_name,
         )
         if not oncall_user_email:
-            logger.warning(
-                "Invalid on-call user email received! Ignoring... "
+            logger.critical(
+                "Invalid on-call user email received! "
+                + f"[schedule: {schedule.schedule_name}, user_group: {schedule.user_group_name}, email: {oncall_user_email}]"
+            )
+            sys.exit(1)
+        user_id = slack_api.find_user_id_by_email(email=oncall_user_email)
+        if not user_id:
+            logger.critical(
+                f'Could not find user "{oncall_user_email}" in Slack! '
                 + f"[schedule_name: {schedule.schedule_name}, user_group_name: {schedule.user_group_name}]"
             )
-            continue
-        user = config.find_user_by_email(
-            email=oncall_user_email,
-        )
-        if not user:
-            logger.warning(
-                f"User {oncall_user_email} is not mapped! Ignoring... "
-                + f"[schedule_name: {schedule.schedule_name}, user_group_name: {schedule.user_group_name}]"
-            )
-            continue
-        logger.info(f'Updating user group "{schedule.user_group_name}" to user "{user.handle}".')
+            sys.exit(1)
+        logger.info(f'Updating Slack user group "{schedule.user_group_name}" to user "{oncall_user_email}/{user_id}".')
         slack_api.update_user_group(
             group_id=group_id_by_name[schedule.user_group_name],
-            user_id=user_id_by_name[user.handle],
+            user_id=user_id,
         )
     logger.info("All done!")
 
