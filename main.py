@@ -27,7 +27,7 @@ def main():
         if not oncall_user_email:
             logger.critical(
                 "Invalid on-call user email received! "
-                + f"[schedule: {schedule.schedule_name}, user_group: {schedule.user_group_name}, email: {oncall_user_email}]"
+                + f"[schedule_name: {schedule.schedule_name}, user_group_name: {schedule.user_group_name}]"
             )
             sys.exit(1)
         user_id = slack_api.find_user_id_by_email(email=oncall_user_email)
