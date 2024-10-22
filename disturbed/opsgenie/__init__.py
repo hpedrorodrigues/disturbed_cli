@@ -1,1 +1,1 @@
-from .api import OpsgenieApi
+from .api import OpsgenieApi  # noqa: F401

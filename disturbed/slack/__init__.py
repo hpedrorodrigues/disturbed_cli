@@ -1,1 +1,1 @@
-from .api import SlackApi
+from .api import SlackApi  # noqa: F401

@@ -1,1 +1,1 @@
-from .schedule import ScheduleHandler
+from .schedule import ScheduleHandler  # noqa: F401
