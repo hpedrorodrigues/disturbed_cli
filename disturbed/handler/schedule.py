@@ -1,11 +1,12 @@
 import logging
 from typing import Optional
 
-from disturbed.configuration import Configuration
+from disturbed.configuration import Configuration, ScheduleMapping, ScheduleOverride
 from disturbed.configuration.types import ALL_DAYS, WEEKDAYS, WEEKENDS
 from disturbed.handler.time import is_time_between, is_weekday
 from disturbed.opsgenie.api import OpsgenieApi
 from disturbed.slack.api import SlackApi
+from disturbed.types import Either
 from disturbed.types.errors import DisturbedError
 
 logger = logging.getLogger(__name__)
@@ -30,35 +31,14 @@ class ScheduleHandler(object):
                 return oncall_user_email.value
 
             if schedule.overrides:
-                schedule_processed = False
+                continue_processing = True
                 for override in schedule.overrides:
-                    is_on_valid_day = (
-                        override.on == ALL_DAYS
-                        or (override.on == WEEKDAYS and is_weekday(override.with_timezone))
-                        or (override.on == WEEKENDS and not is_weekday(override.with_timezone))
-                    )
-                    if not is_on_valid_day:
-                        continue
-
-                    is_time_within_range = is_time_between(override.with_timezone, override.from_time, override.to_time)
-                    if is_time_within_range.is_left():
-                        return is_time_within_range.value
-
-                    if not is_time_within_range.value:
-                        continue
-
-                    logger.info(
-                        f'Updating Slack user group "{schedule.user_group_name}" to users "{override.replace_by}" due to override.'
-                    )
-                    error = self.slack_api.update_user_group_with_user_emails(
-                        group_id=group_id_by_name.value[schedule.user_group_name],
-                        user_emails=override.replace_by,
-                    )
-                    if error:
-                        return error
-                    else:
-                        schedule_processed = True
-                if schedule_processed:
+                    override_applied = self._handle_override(schedule, override, group_id_by_name.value)
+                    if override_applied.is_left():
+                        return override_applied.value
+                    if override_applied.value:
+                        continue_processing = False
+                if not continue_processing:
                     continue
 
             logger.info(
@@ -71,3 +51,32 @@ class ScheduleHandler(object):
             if error:
                 return error
         logger.info("All done!")
+
+    def _handle_override(
+        self,
+        schedule: ScheduleMapping,
+        override: ScheduleOverride,
+        group_id_by_name: dict[str, str],
+    ) -> Either[DisturbedError, bool]:
+        is_on_valid_day = (
+            override.on == ALL_DAYS
+            or (override.on == WEEKDAYS and is_weekday(override.with_timezone))
+            or (override.on == WEEKENDS and not is_weekday(override.with_timezone))
+        )
+        if not is_on_valid_day:
+            return Either.right(False)
+
+        is_time_within_range = is_time_between(override.with_timezone, override.from_time, override.to_time)
+        if is_time_within_range.is_left():
+            return is_time_within_range
+        if not is_time_within_range.value:
+            return Either.right(False)
+
+        logger.info(
+            f'Updating Slack user group "{schedule.user_group_name}" to users "{override.replace_by}" due to override.'
+        )
+        error = self.slack_api.update_user_group_with_user_emails(
+            group_id=group_id_by_name[schedule.user_group_name],
+            user_emails=override.replace_by,
+        )
+        return Either.left(error) if error else Either.right(True)
