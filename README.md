@@ -26,7 +26,9 @@ schedules_mapping:
   - schedule_name: ''
     # User group name in Slack to be updated based on the OpsGenie schedule.
     user_group_name: ''
-    # Optional. Overrides OpsGenie schedules based on the given conditions.
+
+    # Optional
+    # Overrides OpsGenie schedules based on the given conditions.
     overrides:
         # Email of the user that's on-call should be equal to the given value.
       - when_user: ''
