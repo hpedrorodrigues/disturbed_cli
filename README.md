@@ -22,8 +22,30 @@ Simple CLI that update users in Slack user groups based on OpsGenie on-call sche
 
 ```yaml
 schedules_mapping:
-  - schedule_name: "Schedule name in OpsGenie to fetch who's on-call"
-    user_group_name: "User group name in Slack to be updated"
+    # Schedule name in OpsGenie to fetch who's on-call.
+  - schedule_name: ''
+    # User group name in Slack to be updated based on the OpsGenie schedule.
+    user_group_name: ''
+
+    # Optional
+    # Overrides OpsGenie schedules based on the given conditions.
+    overrides:
+        # Email of the user that's on-call should be equal to the given value.
+      - when_user: ''
+        # Current time (in the given timezone) must be within the given time range.
+        # Format: HH:MM:SS.
+        from_time: ''
+        to_time: ''
+        with_timezone: ''
+        # Days that should be considered to override.
+        # Possible values:
+        # - all_days
+        # - weekdays
+        # - weekends
+        on: ''
+        # Update the user group in Slack with the given users instead of the one that's on-call.
+        replace_by:
+          - ''
 ```
 
 **Example**
@@ -33,8 +55,18 @@ schedules_mapping:
 
 ```yaml
 schedules_mapping:
-  - schedule_name: 'SRE'
+  - schedule_name: product
+    user_group_name: 'product-oncall'
+  - schedule_name: sre
     user_group_name: 'sre-oncall'
+    overrides:
+      - when_user: john.doe@gmail.com
+        from_time: '23:00:00'
+        to_time: '01:00:00'
+        with_timezone: 'America/Fortaleza'
+        on: weekdays
+        replace_by:
+          - jane.doe@gmail.com
 ```
 </details>
 
