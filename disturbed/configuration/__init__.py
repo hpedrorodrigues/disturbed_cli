@@ -1,33 +1,12 @@
 import os
 import sys
-from dataclasses import dataclass
 from typing import Any, Optional
 
 import yaml
+import yamlcore
 
+from disturbed.configuration.types import Config, ScheduleMapping, ScheduleOverride
 from disturbed.opsgenie.api import logger
-
-
-@dataclass
-class ScheduleMapping:
-    """
-    Represents a schedule configuration linking an Opsgenie schedule to a Slack user group.
-
-    Attributes:
-        schedule_name (str): The name of the schedule in Opsgenie. This is used to query
-                             Opsgenie for the current on-call user.
-
-        user_group_name (str): The name of the Slack user group to be updated. This group will be updated
-                               with the current on-call user.
-    """
-
-    schedule_name: str
-    user_group_name: str
-
-
-@dataclass
-class Config:
-    schedules_mapping: list[ScheduleMapping]
 
 
 def get_env(var_name: str, default_value: Optional[Any] = None) -> Any:
@@ -48,8 +27,22 @@ class Configuration(object):
 
     def _load(self) -> Config:
         with open(self.path, "r") as fd:
-            config_dict = yaml.safe_load(fd)
-        return Config(schedules_mapping=[ScheduleMapping(**schedule) for schedule in config_dict["schedules_mapping"]])
+            config_dict = yaml.load(fd, Loader=yamlcore.CoreLoader)
+
+        mappings: list[ScheduleMapping] = []
+        for mapping in config_dict["schedules_mapping"]:
+            overrides = None
+            if "overrides" in mapping:
+                overrides = [ScheduleOverride(**override) for override in mapping["overrides"]]
+            mappings.append(
+                ScheduleMapping(
+                    schedule_name=mapping["schedule_name"],
+                    user_group_name=mapping["user_group_name"],
+                    overrides=overrides,
+                )
+            )
+
+        return Config(schedules_mapping=mappings)
 
     @property
     def schedules_mapping(self) -> list[ScheduleMapping]:

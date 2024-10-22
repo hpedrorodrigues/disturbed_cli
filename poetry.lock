@@ -484,7 +484,21 @@ h2 = ["h2 (>=4,<5)"]
 socks = ["pysocks (>=1.5.6,!=1.5.7,<2.0)"]
 zstd = ["zstandard (>=0.18.0)"]
 
+[[package]]
+name = "yamlcore"
+version = "0.0.4"
+description = "YAML 1.2 Support for PyYAML"
+optional = false
+python-versions = ">=3.6"
+files = [
+    {file = "yamlcore-0.0.4-py3-none-any.whl", hash = "sha256:f82a7f7d16baf6531a8c3266b0b63ece251ee2abaf2b9eee040a2f64c8fc618d"},
+    {file = "yamlcore-0.0.4.tar.gz", hash = "sha256:c2b1a08dd117cf76a70ee124e936b3c568b0b5c4e5131e69b513f4a877a44881"},
+]
+
+[package.dependencies]
+PyYAML = "*"
+
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "a9924db6b52e882f86049233f5fb1866a8ec25cabac835d76f1fd0f96d36f135"
+content-hash = "fe4eac26a9b36b8e2043e619224516242d47946c7b702ec9806bce3b4cd422b5"
