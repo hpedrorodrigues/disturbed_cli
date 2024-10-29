@@ -33,7 +33,9 @@ class ScheduleHandler(object):
             if schedule.overrides:
                 continue_processing = True
                 for override in schedule.overrides:
-                    override_applied = self._handle_override(schedule, override, group_id_by_name.value)
+                    override_applied = self._handle_override(
+                        oncall_user_email.value, schedule, override, group_id_by_name.value
+                    )
                     if override_applied.is_left():
                         return override_applied.value
                     if override_applied.value:
@@ -54,10 +56,14 @@ class ScheduleHandler(object):
 
     def _handle_override(
         self,
+        oncall_user_email: str,
         schedule: ScheduleMapping,
         override: ScheduleOverride,
         group_id_by_name: dict[str, str],
     ) -> Either[DisturbedError, bool]:
+        if override.when_user != oncall_user_email:
+            return Either.right(False)
+
         is_on_valid_day = (
             override.on == ALL_DAYS
             or (override.on == WEEKDAYS and is_weekday(override.with_timezone))
