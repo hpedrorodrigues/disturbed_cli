@@ -27,22 +27,20 @@ schedules_mapping:
     # User group name in Slack to be updated based on the OpsGenie schedule.
     user_group_name: ''
 
-    # Optional
-    # Overrides OpsGenie schedules based on the given conditions.
+    # Optional. Overrides OpsGenie schedules based on the given config.
     overrides:
-        # Email of the user that's on-call should be equal to the given value.
-      - when_user: ''
-        # Current time (in the given timezone) must be within the given time range.
-        # Format: HH:MM:SS.
-        from_time: ''
-        to_time: ''
-        with_timezone: ''
-        # Days that should be considered to override.
-        # Possible values:
+        # Email of the user that's on-call.
+      - user_email: ''
+        # Current time (in the given timezone) must be within the given time range. Format: HH:MM:SS.
+        timezone: ''
+        starts_on: ''
+        ends_on: ''
+        # Optional. Defaults to all_days.
+        # Days that should be considered to override. Possible values:
         # - all_days
         # - weekdays
         # - weekends
-        on: ''
+        repeats_on: ''
         # Update the user group in Slack with the given users instead of the one that's on-call.
         replace_by:
           - ''
@@ -60,11 +58,11 @@ schedules_mapping:
   - schedule_name: sre
     user_group_name: 'sre-oncall'
     overrides:
-      - when_user: john.doe@gmail.com
-        from_time: '23:00:00'
-        to_time: '01:00:00'
-        with_timezone: 'America/Fortaleza'
-        on: weekdays
+      - user_email: john.doe@gmail.com
+        timezone: 'America/Fortaleza'
+        starts_on: '23:00:00'
+        ends_on: '01:00:00'
+        repeats_on: weekdays
         replace_by:
           - jane.doe@gmail.com
 ```

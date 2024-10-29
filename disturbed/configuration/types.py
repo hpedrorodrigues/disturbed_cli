@@ -1,18 +1,21 @@
 from dataclasses import dataclass
+from enum import Enum
 from typing import Optional
 
-ALL_DAYS = "all_days"
-WEEKDAYS = "weekdays"
-WEEKENDS = "weekends"
+
+class RepeatsOn(Enum):
+    ALL_DAYS = "all_days"
+    WEEKDAYS = "weekdays"
+    WEEKENDS = "weekends"
 
 
 @dataclass
 class ScheduleOverride:
-    when_user: str
-    from_time: str
-    to_time: str
-    with_timezone: str
-    on: str
+    user_email: str
+    timezone: str
+    starts_on: str
+    ends_on: str
+    repeats_on: Optional[RepeatsOn]
     replace_by: list[str]
 
 
