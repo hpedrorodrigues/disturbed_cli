@@ -5,7 +5,12 @@ from typing import Any, Optional
 import yaml
 import yamlcore
 
-from disturbed.configuration.types import Config, ScheduleMapping, ScheduleOverride
+from disturbed.configuration.types import (
+    Config,
+    RepeatsOn,
+    ScheduleMapping,
+    ScheduleOverride,
+)
 from disturbed.opsgenie.api import logger
 
 
@@ -33,7 +38,17 @@ class Configuration(object):
         for mapping in config_dict["schedules_mapping"]:
             overrides = None
             if "overrides" in mapping:
-                overrides = [ScheduleOverride(**override) for override in mapping["overrides"]]
+                overrides = [
+                    ScheduleOverride(
+                        user_email=override["user_email"],
+                        timezone=override["timezone"],
+                        starts_on=override["starts_on"],
+                        ends_on=override["ends_on"],
+                        repeats_on=RepeatsOn(override["repeats_on"]) if "repeats_on" in override else None,
+                        replace_by=override["replace_by"],
+                    )
+                    for override in mapping["overrides"]
+                ]
             mappings.append(
                 ScheduleMapping(
                     schedule_name=mapping["schedule_name"],

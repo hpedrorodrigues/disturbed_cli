@@ -2,7 +2,7 @@ import logging
 from typing import Optional
 
 from disturbed.configuration import Configuration, ScheduleMapping, ScheduleOverride
-from disturbed.configuration.types import ALL_DAYS, WEEKDAYS, WEEKENDS
+from disturbed.configuration.types import RepeatsOn
 from disturbed.handler.time import is_time_between, is_weekday
 from disturbed.opsgenie.api import OpsgenieApi
 from disturbed.slack.api import SlackApi
@@ -18,7 +18,7 @@ class ScheduleHandler(object):
         self.opsgenie_api = opsgenie_api
         self.slack_api = slack_api
 
-    def handle_schedules(self) -> Optional[DisturbedError]:
+    def process(self) -> Optional[DisturbedError]:
         group_id_by_name = self.slack_api.find_user_group_ids(
             group_names=[mapping.user_group_name for mapping in self.config.schedules_mapping]
         )
@@ -33,13 +33,17 @@ class ScheduleHandler(object):
             if schedule.overrides:
                 continue_processing = True
                 for override in schedule.overrides:
-                    override_applied = self._handle_override(
-                        oncall_user_email.value, schedule, override, group_id_by_name.value
+                    override_applied = self._apply_override(
+                        oncall_user_email=oncall_user_email.value,
+                        schedule=schedule,
+                        override=override,
+                        group_id_by_name=group_id_by_name.value,
                     )
                     if override_applied.is_left():
                         return override_applied.value
                     if override_applied.value:
                         continue_processing = False
+                        break
                 if not continue_processing:
                     continue
 
@@ -54,25 +58,30 @@ class ScheduleHandler(object):
                 return error
         logger.info("All done!")
 
-    def _handle_override(
+    def _apply_override(
         self,
         oncall_user_email: str,
         schedule: ScheduleMapping,
         override: ScheduleOverride,
         group_id_by_name: dict[str, str],
     ) -> Either[DisturbedError, bool]:
-        if override.when_user != oncall_user_email:
+        if oncall_user_email != override.user_email:
             return Either.right(False)
 
-        is_on_valid_day = (
-            override.on == ALL_DAYS
-            or (override.on == WEEKDAYS and is_weekday(override.with_timezone))
-            or (override.on == WEEKENDS and not is_weekday(override.with_timezone))
+        is_on_repeat = (
+            not override.repeats_on
+            or override.repeats_on == RepeatsOn.ALL_DAYS
+            or (override.repeats_on == RepeatsOn.WEEKDAYS and is_weekday(override.timezone))
+            or (override.repeats_on == RepeatsOn.WEEKENDS and not is_weekday(override.timezone))
         )
-        if not is_on_valid_day:
+        if not is_on_repeat:
             return Either.right(False)
 
-        is_time_within_range = is_time_between(override.with_timezone, override.from_time, override.to_time)
+        is_time_within_range = is_time_between(
+            timezone=override.timezone,
+            from_time=override.starts_on,
+            to_time=override.ends_on,
+        )
         if is_time_within_range.is_left():
             return is_time_within_range
         if not is_time_within_range.value:

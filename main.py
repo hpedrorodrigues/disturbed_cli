@@ -15,12 +15,12 @@ def main():
         level=get_env("DISTURBED_LOG_LEVEL", logging.INFO),
     )
 
-    config = Configuration()
-    opsgenie_api = OpsgenieApi(api_key=get_env("DISTURBED_OPSGENIE_API_KEY"))
-    slack_api = SlackApi(token=get_env("DISTURBED_SLACK_API_TOKEN"))
-
-    handler = ScheduleHandler(config, opsgenie_api, slack_api)
-    error = handler.handle_schedules()
+    handler = ScheduleHandler(
+        config=Configuration(),
+        opsgenie_api=OpsgenieApi(api_key=get_env("DISTURBED_OPSGENIE_API_KEY")),
+        slack_api=SlackApi(token=get_env("DISTURBED_SLACK_API_TOKEN")),
+    )
+    error = handler.process()
     if error:
         logger.critical(error)
         sys.exit(1)
