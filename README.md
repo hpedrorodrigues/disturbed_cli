@@ -81,3 +81,7 @@ docker run \
   -v ./config.yaml:/app/config.yaml \
   ghcr.io/hpedrorodrigues/disturbed_cli:<version>
 ```
+
+### Helm chart
+
+Helm chart is available [here](https://github.com/hpedrorodrigues/helm-charts/tree/main/charts/disturbed-cli).
