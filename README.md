@@ -60,8 +60,8 @@ schedules_mapping:
     overrides:
       - user_email: john.doe@gmail.com
         timezone: 'America/Fortaleza'
-        starts_on: '23:00:00'
-        ends_on: '01:00:00'
+        starts_on: '13:00:00'
+        ends_on: '18:00:00'
         repeats_on: weekdays
         replace_by:
           - jane.doe@gmail.com
@@ -81,6 +81,10 @@ docker run \
   -v ./config.yaml:/app/config.yaml \
   ghcr.io/hpedrorodrigues/disturbed_cli:<version>
 ```
+
+### Example
+
+![Slack Demo](./.github/assets/slack_demo.png)
 
 ### Helm chart
 
