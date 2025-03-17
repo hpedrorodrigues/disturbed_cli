@@ -68,6 +68,8 @@ schedules_mapping:
 ```
 </details>
 
+![Slack Demo](./.github/assets/slack_demo.png)
+
 ### Docker image
 
 There is a Docker image you can use to run this project.
@@ -81,10 +83,6 @@ docker run \
   -v ./config.yaml:/app/config.yaml \
   ghcr.io/hpedrorodrigues/disturbed_cli:<version>
 ```
-
-### Example
-
-![Slack Demo](./.github/assets/slack_demo.png)
 
 ### Helm chart
 
