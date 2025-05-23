@@ -1,5 +1,5 @@
 [tools]
-python = "3.13.3"
+python = "3.13"
 
 [tasks.fmt]
 run = "poetry run isort . && poetry run black ."
