@@ -1,4 +1,4 @@
-FROM python:3.13-alpine AS builder
+FROM python:3.14-alpine AS builder
 
 WORKDIR /app
 
@@ -16,7 +16,7 @@ RUN apk update \
     && poetry install --no-ansi \
     && python -m compileall .
 
-FROM python:3.13-alpine
+FROM python:3.14-alpine
 
 WORKDIR /app
 

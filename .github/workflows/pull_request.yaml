@@ -15,7 +15,7 @@ jobs:
           python-version-file: .tool-versions
       - uses: Gr1N/setup-poetry@v9
         with:
-          poetry-version: '2.2.0'
+          poetry-version: '2.2.1'
       - run: poetry install
       - run: poetry run pflake8
   build:
