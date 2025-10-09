@@ -12,10 +12,10 @@ jobs:
       - uses: actions/checkout@v5
       - uses: actions/setup-python@v6
         with:
-          python-version: '3.14'
+          python-version-file: .tool-versions
       - uses: Gr1N/setup-poetry@v9
         with:
-          poetry-version: '1.8.3'
+          poetry-version: '2.2.1'
       - run: poetry install
       - run: poetry run pflake8
   build:
