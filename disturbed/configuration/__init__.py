@@ -1,3 +1,4 @@
+import logging
 import os
 import sys
 from typing import Any, Optional
@@ -7,11 +8,13 @@ import yamlcore
 
 from disturbed.configuration.types import (
     Config,
+    Provider,
     RepeatsOn,
     ScheduleMapping,
     ScheduleOverride,
 )
-from disturbed.opsgenie.api import logger
+
+logger = logging.getLogger(__name__)
 
 
 def get_env(var_name: str, default_value: Optional[Any] = None) -> Any:
@@ -49,11 +52,22 @@ class Configuration(object):
                     )
                     for override in mapping["overrides"]
                 ]
+            provider_value = mapping.get("provider", Provider.PAGERDUTY.value)
+            try:
+                provider = Provider(provider_value)
+            except ValueError:
+                logger.error(
+                    f'Invalid provider "{provider_value}" for schedule "{mapping["schedule_name"]}". '
+                    f"Valid values: {[provider.value for provider in Provider]}."
+                )
+                sys.exit(1)
+
             mappings.append(
                 ScheduleMapping(
                     schedule_name=mapping["schedule_name"],
                     user_group_name=mapping["user_group_name"],
                     overrides=overrides,
+                    provider=provider,
                 )
             )
 

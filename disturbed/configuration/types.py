@@ -3,6 +3,11 @@ from enum import Enum
 from typing import Optional
 
 
+class Provider(Enum):
+    OPSGENIE = "opsgenie"
+    PAGERDUTY = "pagerduty"
+
+
 class RepeatsOn(Enum):
     ALL_DAYS = "all_days"
     WEEKDAYS = "weekdays"
@@ -24,6 +29,7 @@ class ScheduleMapping:
     schedule_name: str
     user_group_name: str
     overrides: Optional[list[ScheduleOverride]]
+    provider: Provider = Provider.PAGERDUTY
 
 
 @dataclass

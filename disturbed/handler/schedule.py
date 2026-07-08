@@ -2,20 +2,19 @@ import logging
 from typing import Optional
 
 from disturbed.configuration import Configuration, ScheduleMapping, ScheduleOverride
-from disturbed.configuration.types import RepeatsOn
+from disturbed.configuration.types import Provider, RepeatsOn
 from disturbed.handler.time import is_time_between, is_weekday
-from disturbed.opsgenie.api import OpsgenieApi
 from disturbed.slack.api import SlackApi
-from disturbed.types import Either
+from disturbed.types import Either, OnCallProvider
 from disturbed.types.errors import DisturbedError
 
 logger = logging.getLogger(__name__)
 
 
 class ScheduleHandler(object):
-    def __init__(self, config: Configuration, opsgenie_api: OpsgenieApi, slack_api: SlackApi):
+    def __init__(self, config: Configuration, providers: dict[Provider, OnCallProvider], slack_api: SlackApi):
         self.config = config
-        self.opsgenie_api = opsgenie_api
+        self.providers = providers
         self.slack_api = slack_api
 
     def process(self) -> Optional[DisturbedError]:
@@ -26,7 +25,8 @@ class ScheduleHandler(object):
             return group_id_by_name.value
 
         for schedule in self.config.schedules_mapping:
-            oncall_user_email = self.opsgenie_api.get_on_call_user_email(schedule_name=schedule.schedule_name)
+            provider = self.providers[schedule.provider]
+            oncall_user_email = provider.get_on_call_user_email(schedule_name=schedule.schedule_name)
             if oncall_user_email.is_left():
                 return oncall_user_email.value
 

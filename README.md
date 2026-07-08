@@ -1,6 +1,6 @@
 # Disturbed CLI
 
-Simple CLI that update users in Slack user groups based on OpsGenie on-call schedules.
+Simple CLI that update users in Slack user groups based on OpsGenie or PagerDuty on-call schedules.
 
 > Note: It's intended to be run as a cron job.
 
@@ -8,8 +8,13 @@ Simple CLI that update users in Slack user groups based on OpsGenie on-call sche
 
 ### Environment variables
 - `DISTURBED_OPSGENIE_API_KEY`: API key used to fetch schedules in OpsGenie.
+  - Only required if any schedule uses the `opsgenie` provider.
   - It needs `Read` and `Configuration Access` access rights.
   - You can read this [page](https://support.atlassian.com/opsgenie/docs/api-key-management/) to learn how to create an API key.
+- `DISTURBED_PAGERDUTY_API_KEY`: API key used to fetch schedules in PagerDuty.
+  - Only required if any schedule uses the `pagerduty` provider (the default).
+  - A read-only General Access REST API key is enough.
+  - You can read this [page](https://support.pagerduty.com/main/docs/api-access-keys) to learn how to create an API key.
 - `DISTURBED_SLACK_API_TOKEN`: Bot Token used to fetch users, user groups and update use groups.
   - It needs `users:read`, `users:read.email`, `usergroups:read` and `usergroups:write` scopes.
   - You can read this [page](https://api.slack.com/tutorials/tracks/getting-a-token) to quickly get a Slack Bot Token.
@@ -22,12 +27,18 @@ Simple CLI that update users in Slack user groups based on OpsGenie on-call sche
 
 ```yaml
 schedules_mapping:
-    # Schedule name in OpsGenie to fetch who's on-call.
+    # Schedule name in OpsGenie or PagerDuty to fetch who's on-call.
   - schedule_name: ''
-    # User group name in Slack to be updated based on the OpsGenie schedule.
+    # User group name in Slack to be updated based on the schedule.
     user_group_name: ''
 
-    # Optional. Overrides OpsGenie schedules based on the given config.
+    # Optional. Defaults to pagerduty.
+    # On-call provider to fetch the schedule from. Possible values:
+    # - opsgenie
+    # - pagerduty
+    provider: ''
+
+    # Optional. Overrides schedules based on the given config.
     overrides:
         # Email of the user that's on-call.
       - user_email: ''
@@ -55,6 +66,7 @@ schedules_mapping:
 schedules_mapping:
   - schedule_name: product
     user_group_name: 'product-oncall'
+    provider: opsgenie
   - schedule_name: sre
     user_group_name: 'sre-oncall'
     overrides:
@@ -79,10 +91,13 @@ e.g.,
 ```bash
 docker run \
   -e DISTURBED_OPSGENIE_API_KEY='<api-key>' \
+  -e DISTURBED_PAGERDUTY_API_KEY='<api-key>' \
   -e DISTURBED_SLACK_API_TOKEN='<bot-token>' \
   -v ./config.yaml:/app/config.yaml \
   ghcr.io/hpedrorodrigues/disturbed_cli:<version>
 ```
+
+> Note: Only the API keys for the providers referenced in your `config.yaml` are required.
 
 ### Helm chart
 
