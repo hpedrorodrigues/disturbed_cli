@@ -7,6 +7,9 @@ run = "poetry run isort . && poetry run black ."
 [tasks.lint]
 run = "poetry run pflake8"
 
+[tasks.test]
+run = "poetry run pytest"
+
 [tasks.app]
 run = "poetry run python main.py"
 depends = ["fmt"]

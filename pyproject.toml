@@ -19,6 +19,7 @@ flake8-isort = "^7.0.0"
 pyproject-flake8 = "^7.0.0"
 black = "^26.0.0"
 isort = "^8.0.0"
+pytest = "^9.1.1"
 
 [build-system]
 requires = ["poetry-core"]
