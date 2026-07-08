@@ -58,14 +58,54 @@ class PagerdutyApi(object):
                     response_body=response.text,
                 )
             )
-        return Either.right(users[0]["email"])
+
+        # The API may return a user reference (no email) instead of a full user object.
+        user = users[0]
+        if user.get("email"):
+            return Either.right(user["email"])
+        if user.get("deleted_at"):
+            return Either.left(
+                DisturbedApiError(
+                    message=f'On-call user "{user.get("summary")}" has been deleted in PagerDuty '
+                    f"[schedule_name: {schedule_name}].",
+                    status_code=response.status_code,
+                    response_body=response.text,
+                )
+            )
+        return self._get_user_email(user_id=user["id"], schedule_name=schedule_name)
+
+    def _get_user_email(self, user_id: str, schedule_name: str) -> Either[DisturbedApiError, str]:
+        response = requests.get(
+            url=f"{BASE_URL}/users/{user_id}",
+            headers=self._headers(),
+        )
+
+        if response.status_code != 200:
+            return Either.left(
+                DisturbedApiError(
+                    message=f"Failed to get on-call user details [schedule_name: {schedule_name}, user_id: {user_id}].",
+                    status_code=response.status_code,
+                    response_body=response.text,
+                )
+            )
+
+        email = response.json().get("user", {}).get("email")
+        if not email:
+            return Either.left(
+                DisturbedApiError(
+                    message=f"On-call user has no email [schedule_name: {schedule_name}, user_id: {user_id}].",
+                    status_code=response.status_code,
+                    response_body=response.text,
+                )
+            )
+        return Either.right(email)
 
     def _find_schedule_id(self, schedule_name: str) -> Either[DisturbedApiError, str]:
         if schedule_name in self._schedule_id_by_name:
             return Either.right(self._schedule_id_by_name[schedule_name])
 
         response = requests.get(
-            url=f"{BASE_URL}/schedules",
+            url=f"{BASE_URL}/v3/schedules",
             params={"query": schedule_name, "limit": 100},
             headers=self._headers(),
         )
@@ -81,7 +121,7 @@ class PagerdutyApi(object):
 
         # The "query" param matches substrings, so an exact-name filter is still needed.
         schedules = response.json().get("schedules", [])
-        matches = [schedule for schedule in schedules if schedule.get("name") == schedule_name]
+        matches = [schedule for schedule in schedules if schedule.get("summary") == schedule_name]
         if not matches or len(matches) == 0:
             return Either.left(
                 DisturbedApiError(

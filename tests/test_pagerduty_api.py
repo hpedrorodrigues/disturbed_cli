@@ -9,7 +9,10 @@ USER_EMAIL = "john.doe@example.com"
 
 
 def schedules_response(*names_and_ids: tuple[str, str]) -> Mock:
-    return fake_response(200, {"schedules": [{"id": id, "name": name} for name, id in names_and_ids]})
+    return fake_response(
+        200,
+        {"schedules": [{"id": id, "summary": name, "type": "schedule_v3_reference"} for name, id in names_and_ids]},
+    )
 
 
 def users_response(*emails: str) -> Mock:
@@ -27,6 +30,7 @@ def test_returns_on_call_user_email(mock_get):
 
     assert result.is_right
     assert result.value == USER_EMAIL
+    assert mock_get.call_args_list[0].kwargs["url"].endswith("/v3/schedules")
     assert mock_get.call_args_list[1].kwargs["url"].endswith(f"/schedules/{SCHEDULE_ID}/users")
 
 
@@ -113,6 +117,49 @@ def test_fails_when_users_request_fails(mock_get):
 
 
 @patch("disturbed.pagerduty.api.requests.get")
+def test_fails_when_on_call_user_is_deleted(mock_get):
+    deleted_user = {"id": "PDEL1", "summary": "Aaron Siegel", "deleted_at": "2023-10-17T21:34:41Z"}
+    mock_get.side_effect = [
+        schedules_response((SCHEDULE_NAME, SCHEDULE_ID)),
+        fake_response(200, {"users": [deleted_user]}),
+    ]
+
+    result = PagerdutyApi(api_key="key").get_on_call_user_email(schedule_name=SCHEDULE_NAME)
+
+    assert result.is_left()
+    assert "has been deleted" in str(result.value)
+
+
+@patch("disturbed.pagerduty.api.requests.get")
+def test_resolves_email_via_user_details_when_missing_from_schedule(mock_get):
+    mock_get.side_effect = [
+        schedules_response((SCHEDULE_NAME, SCHEDULE_ID)),
+        fake_response(200, {"users": [{"id": "PUSER1", "summary": "John Doe"}]}),
+        fake_response(200, {"user": {"id": "PUSER1", "email": USER_EMAIL}}),
+    ]
+
+    result = PagerdutyApi(api_key="key").get_on_call_user_email(schedule_name=SCHEDULE_NAME)
+
+    assert result.is_right
+    assert result.value == USER_EMAIL
+    assert mock_get.call_args_list[2].kwargs["url"].endswith("/users/PUSER1")
+
+
+@patch("disturbed.pagerduty.api.requests.get")
+def test_fails_when_user_details_request_fails(mock_get):
+    mock_get.side_effect = [
+        schedules_response((SCHEDULE_NAME, SCHEDULE_ID)),
+        fake_response(200, {"users": [{"id": "PUSER1", "summary": "John Doe"}]}),
+        fake_response(404, {"error": {"message": "Not Found"}}),
+    ]
+
+    result = PagerdutyApi(api_key="key").get_on_call_user_email(schedule_name=SCHEDULE_NAME)
+
+    assert result.is_left()
+    assert "Failed to get on-call user details" in str(result.value)
+
+
+@patch("disturbed.pagerduty.api.requests.get")
 def test_caches_schedule_id_between_calls(mock_get):
     mock_get.side_effect = [
         schedules_response((SCHEDULE_NAME, SCHEDULE_ID)),
@@ -124,5 +171,5 @@ def test_caches_schedule_id_between_calls(mock_get):
     assert api.get_on_call_user_email(schedule_name=SCHEDULE_NAME).is_right
     assert api.get_on_call_user_email(schedule_name=SCHEDULE_NAME).is_right
 
-    schedule_lookups = [call for call in mock_get.call_args_list if call.kwargs["url"].endswith("/schedules")]
+    schedule_lookups = [call for call in mock_get.call_args_list if call.kwargs["url"].endswith("/v3/schedules")]
     assert len(schedule_lookups) == 1
