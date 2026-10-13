@@ -14,7 +14,7 @@ RUN apk update \
     && rm -rf /var/cache/apk/* \
     && pip install --no-cache-dir poetry==${POETRY_VERSION} \
     && poetry config virtualenvs.in-project true \
-    && poetry install --no-ansi \
+    && poetry install --no-ansi --only main \
     && python -m compileall .
 
 FROM python:3.15-alpine
