@@ -10,6 +10,7 @@ RUN apk update \
     && apk add --no-cache  \
       gcc \
       musl-dev \
+      yaml-dev \
     && rm -rf /var/cache/apk/* \
     && pip install --no-cache-dir poetry==${POETRY_VERSION} \
     && poetry config virtualenvs.in-project true \
@@ -19,6 +20,10 @@ RUN apk update \
 FROM python:3.15-alpine
 
 WORKDIR /app
+
+RUN apk update \
+    && apk add --no-cache yaml \
+    && rm -rf /var/cache/apk/*
 
 COPY --from=builder /app/ /app/
 COPY disturbed /app/disturbed/
