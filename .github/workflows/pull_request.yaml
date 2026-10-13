@@ -20,26 +20,15 @@ jobs:
       - run: poetry run pflake8
       - run: poetry run pytest
   build:
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     timeout-minutes: 15
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - platform: linux/amd64
-            os: ubuntu-latest
-          - platform: linux/arm64
-            os: ubuntu-24.04-arm
     steps:
       - uses: actions/checkout@v7
-      - id: platform
-        run: echo "pair=${PLATFORM//\//-}" >> "$GITHUB_OUTPUT"
-        env:
-          PLATFORM: ${{ matrix.platform }}
+      - uses: docker/setup-qemu-action@v4
       - uses: docker/setup-buildx-action@v4
       - uses: docker/build-push-action@v7
         with:
           push: false
-          platforms: ${{ matrix.platform }}
-          cache-from: type=gha,scope=${{ steps.platform.outputs.pair }}
-          cache-to: type=gha,mode=max,scope=${{ steps.platform.outputs.pair }}
+          platforms: linux/amd64,linux/arm64
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
