@@ -13,7 +13,7 @@ jobs:
       - uses: actions/setup-python@v7
         with:
           python-version-file: .tool-versions
-      - uses: Gr1N/setup-poetry@v9
+      - uses: Gr1N/setup-poetry@v10
         with:
           poetry-version: '2.2.1'
       - run: poetry install
