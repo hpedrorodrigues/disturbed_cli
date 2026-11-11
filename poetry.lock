@@ -673,14 +673,14 @@ zstd = ["backports-zstd (>=1.0.0) ; python_version < \"3.14\""]
 
 [[package]]
 name = "yamlcore"
-version = "0.0.4"
+version = "0.1.1"
 description = "YAML 1.2 Support for PyYAML"
 optional = false
-python-versions = ">=3.6"
+python-versions = ">=3.8"
 groups = ["main"]
 files = [
-    {file = "yamlcore-0.0.4-py3-none-any.whl", hash = "sha256:f82a7f7d16baf6531a8c3266b0b63ece251ee2abaf2b9eee040a2f64c8fc618d"},
-    {file = "yamlcore-0.0.4.tar.gz", hash = "sha256:c2b1a08dd117cf76a70ee124e936b3c568b0b5c4e5131e69b513f4a877a44881"},
+    {file = "yamlcore-0.1.1-py3-none-any.whl", hash = "sha256:85adda6abfe2ed6b13c80818d6b733f286bd6685314f7e6705321f4477f2dba1"},
+    {file = "yamlcore-0.1.1.tar.gz", hash = "sha256:7a3a7e83e659b7b282610b70a632ff27708b3315ac884890c0382476bf453f28"},
 ]
 
 [package.dependencies]
@@ -689,4 +689,4 @@ PyYAML = "*"
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.14"
-content-hash = "2f2caeaf8489dd350e15753212725d2402986772d1a39be156e9e497ddf07c44"
+content-hash = "6df4093dd52b648034efea0d6ef99324a56428c9af66117c54d129778a10e19e"
